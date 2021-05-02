@@ -4,8 +4,8 @@ import numpy as np
 import time
 
 def main():
-    
-    sg.theme('Black')
+
+    sg.theme('LightBLue2')
 
     # define the window layout
     startScreen =   [
@@ -40,7 +40,7 @@ def main():
     video = []
 
     while True:
-        event, values = window.read(timeout=100)
+        event, values = window.read(timeout=10)
         
         if event == 'Exit' or event == sg.WIN_CLOSED:
             return
@@ -71,7 +71,11 @@ def main():
         ret, frame = cap.read()
         # cv2.waitKey(1)
         img = frame[0:240, 0:480]
-        imgbytes = cv2.imencode('.png', img)[1].tobytes()  # ditto
+        imgbytes = cv2.imencode('.png', img)[1]
+        # .tobytes()  # ditto
+        # cv2.imwrite("temp.png", img)
+        # print(img)
+        imgbytes = imgbytes.tobytes()
         window['image'].update(data=imgbytes)
         
         if recording:
@@ -94,7 +98,7 @@ def main():
             window["STARTSCREEN"].update(visible=False)
             window["APPSCREEN"].update(visible=False)
             window["MSGSCREEN"].update(visible=True)
-        print(cnt, round(time.time()*1000))
+        
 
 
 main()
