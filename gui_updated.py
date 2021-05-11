@@ -18,12 +18,15 @@ def main():
                     [sg.Image(filename='', key='image')],
                     [   sg.Button('Record', key="RECORD", size=(10, 1), font='Helvetica 14'),
                         sg.Button('Stop', key="STOP", size=(8, 1), visible=False, font='Helvetica 14'),
-                        sg.Button('Help', key="HELP", size=(8, 1), font='Helvetica 14'), ]
+                        sg.Button('Go Back', key="HELP", size=(8, 1), font='Helvetica 14'), 
+                        sg.Button('Exit', key="EXIT", size=(8, 1), font='Helvetica 14'), ]
                 ]
                
     messageScreen = [
-                        [sg.Text('Nice to meet you', size=(40, 2), justification='left', font='Helvetica 20')],
-                        [sg.Button('Back', key="BACK", size=(8, 1), font='Helvetica 14'),]
+                        [sg.Text('The translated text is', size=(40, 1), justification='left', font='Helvetica 16')],
+                        [sg.Text('Take care', size=(40, 2), justification='left', font='Helvetica 20')],
+                        [sg.Button('Back', key="BACK", size=(8, 1), font='Helvetica 14'), 
+                            sg.Button('Exit', key="EXIT", size=(8, 1), font='Helvetica 14'),]
                     ]
     layout = [
                 [   sg.Column(startScreen, visible=True, key="STARTSCREEN"), 
@@ -35,14 +38,16 @@ def main():
                        no_titlebar=True,
                        size=(480,320))
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture("take care-12.mp4")
     recording = False
     video = []
+    sec = 0
+    stopped = False
 
     while True:
-        event, values = window.read(timeout=10)
+        event, values = window.read(timeout=1)
         
-        if event == 'Exit' or event == sg.WIN_CLOSED:
+        if event == 'Exit' or event == sg.WIN_CLOSED or event == "EXIT":
             return
         
         elif event == "START":
@@ -65,12 +70,13 @@ def main():
             recording = True 
 
         elif event == 'STOP':
-            recording = False
+            time.sleep(1)
+            stopped = True
               
-
+        
         ret, frame = cap.read()
-        # cv2.waitKey(1)
-        img = frame[0:240, 0:480]
+        
+        img = cv2.resize(frame, (480, 240))
         imgbytes = cv2.imencode('.png', img)[1]
         # .tobytes()  # ditto
         # cv2.imwrite("temp.png", img)
@@ -81,17 +87,17 @@ def main():
         if recording:
             video.append([frame])
             cnt += 1
-            window["RECORD"].update(text="Recording... " + str(int(cnt/7) + 1), button_color="#FFFF00")
+            window["RECORD"].update(text="Recording... ", button_color="#FFFF00")
             window["STOP"].update(visible=True)
             window["HELP"].update(visible=False)
         else:
             cnt = 0
-            window["RECORD"].update(text="Record", button_color="#FFFFFF") 
+            window["RECORD"].update(text="Record") 
             window["STOP"].update(visible=False)
             window["HELP"].update(visible=True)
         
-        if cnt == 20:
-            # processVideo(video)
+        if stopped:
+            process = 1
             video = []
             recording = False
             cnt = 0
